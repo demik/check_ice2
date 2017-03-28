@@ -28,6 +28,39 @@
 *.x86_64
 *.hex
 
+# http://www.gnu.org/software/automake
+Makefile.in
+
+# http://www.gnu.org/software/autoconf
+/autom4te.cache
+/aclocal.m4
+/compile
+/configure
+/depcomp
+/install-sh
+/missing
+
+# OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Subversion
+.svn/
+
+# Linux
+.*
+!.gitignore
+*~
+
 # Debug files
 *.dSYM/
 *.su
