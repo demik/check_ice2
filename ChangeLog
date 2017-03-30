@@ -1,8 +1,11 @@
+### 1.0.3
+- removed openssl header
+
 ### 1.0.2
-include / in front of mount names
+- include / in front of mount names
 
 ### 1.0.1
-fixed some issue with slow servers
+- fixed some issue with slow servers
 
 ### 1.0.0
-initial release
+- initial release

@@ -40,7 +40,6 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <netinet/in.h>
-#include <openssl/rc4.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
