@@ -64,3 +64,12 @@ Icon
 # Debug files
 *.dSYM/
 *.su
+
+# Project
+config.log
+config.status
+Makefile
+src/check_ice2
+src/include/stamp-h1
+src/Makefile
+
