@@ -17,182 +17,160 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
-#include <unistd.h>		/* close */
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include "main.h"
 
 #define LF  10
 #define BUF_SIZE 4096
 
-char		verrev    [BUF_SIZE] = "$Id: check_ice.c,v 1.5 2008/10/07 04:11:13 pozar Exp $";
+/* prototypes */
+static inline int       check_code(char *line);
+static inline int       check_icy_name(char *str);
 
-char		hostname  [BUF_SIZE] = "scfire-dtc-aa01.stream.aol.com";
-char		mount     [BUF_SIZE] = "/";
-char		send_string[BUF_SIZE] = "";
-char		recv_string[BUF_SIZE] = "";
-int		portnum = 80;
-
-int
-main(int argc, char *argv[])
+/*
+ * main function
+ * return/exit values are based on the POSIX spec of returning a positive value :
+ *
+ * 0: OK
+ * 1: WARNING
+ * 2: ERROR
+ * 3: UNKNOWN
+ */
+int	main(int argc, char *argv[])
 {
-	int		sd        , rc, i;
-	struct sockaddr_in localAddr, servAddr;
-	struct hostent *h;
+	int	r;	/* return code */
+	int	s;	/* socket file descriptor */
 
-	if (argc < 2) {
-		banner();
-		exit(3);
-	}
-	/* scan command line arguments, and look for files to work on. */
-	for (i = 1; i < argc; i++) {
-		switch (argv[i][1]) {	/* be case indepenent... */
-		case 'H':	/* Hostname... */
-			i++;
-			strncpy(hostname, argv[i], BUF_SIZE);
-			break;
-		case 'p':
-			i++;
-			if (argv[i]) {
-				portnum = atoi(argv[i]);
-			}
-			break;
-		case 'm':
-			i++;
-			/* We need a slash in front of the mount... */
-			if (argv[i]) {
-				if ('/' != argv[i][0]) {
-					sprintf(mount, "/%s", argv[i]);
-				} else {
-					strncpy(mount, argv[i], BUF_SIZE);
-				}
-			}
-			break;
-		default:
-			printf("I don't know the meaning of the command line argument: \"%s\".\n", argv[i]);
-			banner();
-			exit(3);
-		}
+	char	buff[BUFF_SIZE];
+	ssize_t	len;
+
+	char	*line;
+	char	*content_type = NULL;
+	char 	*soft;
+	char 	*icy_name;
+
+
+	/* check args */
+	if (checkopt(&argc, &argv))
+		fprintf(stderr, "[-] warning: trailing arguments\n");
+
+	s = http_connect();
+	if (s == -1)
+		exit(UNKNOWN);
+	http_request(s);
+
+	len = read(s, buff, BUFF_SIZE - 1);
+	close(s);
+
+	if (len < 0) {
+		perror("[-] read error from server");
+		exit(UNKNOWN);
 	}
 
-	h = gethostbyname(hostname);
-	if (h == NULL) {
-		printf("%s: unknown host '%s'\n", argv[0], hostname);
-		exit(3);
-	}
-	servAddr.sin_family = h->h_addrtype;
-	memcpy((char *)&servAddr.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
-	servAddr.sin_port = htons(portnum);
+	buff[len - 1] = '\0';
 
-	/* create socket */
-	sd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sd < 0) {
-		perror("cannot open socket ");
-		exit(3);
+	/* HTTP/1.0 302 OK <- minimum iresponse string */
+	if (len < 14) {
+		fprintf(stderr, "[-] incomplete response received\n");
+		exit(ERROR);
 	}
-	/* bind any port number */
-	localAddr.sin_family = AF_INET;
-	localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	localAddr.sin_port = htons(0);
 
-	rc = bind(sd, (struct sockaddr *)&localAddr, sizeof(localAddr));
-	if (rc < 0) {
-		printf("%s: cannot bind port TCP %u\n", argv[0], portnum);
-		perror("error ");
-		exit(3);
-	}
-	/* connect to server */
-	rc = connect(sd, (struct sockaddr *)&servAddr, sizeof(servAddr));
-	if (rc < 0) {
-		perror("cannot connect ");
-		exit(2);
-	}
-	sprintf(send_string, "GET %s HTTP/1.1 Accept: */*\n\n", mount);
+	for (line = strtok(buff, "\r\n"); line; line = strtok(NULL, "\r\n")) {
+		if (strncmp(line, "Content-Type: ", 14) == 0) {
+			content_type = line + 14;
+			continue ;
+		}
 
-	rc = send(sd, send_string, strlen(send_string) + 1, 0);
+		if (strncmp(line, "icy-name:", 9) == 0) {
+			icy_name = line + 9;
+			if (g_mode & VERBOSE)
+				printf("[+] ICY Name: %s\n", icy_name);
+			continue ;
+		}
 
-	if (rc < 0) {
-		perror("cannot send data ");
-		close(sd);
-		exit(2);
-	}
-	/* rc = recv(sd, recv_string, BUF_SIZE, 0); */
-	readline(sd, recv_string);
+		if (strncmp(line, "Content-Type: ", 14) == 0) {
+			content_type = line + 14;
+			if (g_mode & VERBOSE)
+				printf("[+] Content_type: %s\n", content_type);
+			continue ;
+		}
 
-	if (rc < 0) {
-		perror("cannot recv data ");
-		close(sd);
-		exit(2);
-	}
-	if (rc == 0) {
-		printf("Got zero bytes back.\n");
-		exit(2);
-	} else {
-		if (0 < strstr(recv_string, " 200 ")) {
-			printf("Stream at: \"http://%s:%i%s\" is up.\n", hostname, portnum, mount);
-			exit(0);
+		if (strncmp(line, "Server: ", 8) == 0) {
+			soft = line + 8;
+			if (g_mode & VERBOSE)
+				printf("[+] Remote server: %s\n", soft);
+			continue ;
 		}
-		if (0 < strstr(recv_string, " 206 ")) {
-			printf("Stream at: \"http://%s:%i%s\" is up but only partially.\n", hostname, portnum, mount);
-			exit(1);
-		}
-		if (0 < strstr(recv_string, " 400 ")) {
-			printf("Stream at: \"http://%s:%i%s\" is full.\n", hostname, portnum, mount);
-			exit(2);
-		}
-		if (0 < strstr(recv_string, " 401 ")) {
-			printf("Stream at: \"http://%s:%i%s\" was not found.\n", hostname, portnum, mount);
-			exit(2);
-		}
-		if (0 < strstr(recv_string, " 403 ")) {
-			printf("Stream at: \"http://%s:%i%s\" was not found.\n", hostname, portnum, mount);
-			exit(2);
-		}
-		if (0 < strstr(recv_string, " 404 ")) {
-			printf("Stream at: \"http://%s:%i%s\" was not found.\n", hostname, portnum, mount);
-			exit(2);
-		}
-		if (0 < strstr(recv_string, " 416 ")) {
-			printf("Stream at: \"http://%s:%i%s\" was not found.\n", hostname, portnum, mount);
-			exit(2);
-		}
-		if (0 < strstr(recv_string, " 500 ")) {
-			printf("Stream at: \"http://%s:%i%s\" encountered a server error.\n", hostname, portnum, mount);
-			exit(2);
-		}
-		if (0 < strstr(recv_string, " 503 ")) {
-			printf("Stream at: \"http://%s:%i%s\" was not found.\n", hostname, portnum, mount);
-			exit(2);
+
+		if (strncmp(line, "HTTP/", 5) == 0) {
+			r = check_code(line);	
 		}
 	}
-	/* We really shouldn't get this far... */
-	printf("Unknown state for stream at: \"http://%s:%i%s\"\n", hostname, portnum, mount);
-	exit(3);
+
+	if (r > 0)
+		exit(r);
+
+	/* check only ICY metadata of no previous errors */
+	if (g_name != NULL)
+		r = check_icy_name(icy_name);
+	
+	if (r > 0)
+		printf("Stream is up on %s, but icy-name doesn't match: %s.\n", g_mount, icy_name);
+	else
+		printf("Stream is up on %s (name: %s, type: %s).\n", g_mount, icy_name, content_type);
+	exit(r);
 }
 
-readline(fip, buffer)
-	int		fip;
-	char           *buffer;
+static inline int	check_code(char *line)
 {
-	int		i = 0;
-	char		c;
-	int		ret;
+	int	code = -1;
 
-	bzero(buffer, BUF_SIZE);
-	while (i < BUF_SIZE) {
-		ret = read(fip, &c, sizeof(char));
-		if (ret < 1)
-			break;
-		if (c == LF)
-			break;
-		buffer[i] = c;
-		i++;
+	/* avoid crappy chained strstr and strcmpi mixed in if else... */
+	/* HTTP/1.0 200 OK */
+	if (strlen(line) < 13) {
+		fprintf(stderr, "[-] incomplete response received\n");
+		exit(ERROR);
 	}
-	return (i);
+
+	line[12] = '\0';
+	code = atoi(line + 9);
+
+	switch(code) {
+		case 200:
+		case 206:
+			return NOERROR;
+		case 400:
+			printf("Stream at: \"http://%s:%s%s\" is full.\n", g_host, g_port, g_mount);
+			return ERROR;
+		case 401:
+		case 403:
+		case 404:
+		case 416:
+			printf("Stream at: \"http://%s:%s%s\" was not found.\n", g_host, g_port, g_mount);
+			return ERROR;
+		case 500:
+			printf("Stream at: \"http://%s:%s%s\" encountered a server error.\n", g_host, g_port, g_mount);
+			return ERROR;
+		case 503:
+			printf("Stream at: \"http://%s:%s%s\" was not avaible.\n", g_host, g_port, g_mount);
+			return ERROR;
+		default:	
+			printf("Unknown state for stream at: \"http://%s:%s%s\"\n", g_host, g_port, g_mount);
+			return UNKNOWN;
+	}
 }
 
-
-banner()
+static inline int	check_icy_name(char *str)
 {
-	printf("check_ice: Nagios plugin to check if a ICE or Shoucast stream is up.\n");
-	printf("Usage:check_ice -H host -p port [-m mount_point]\n");
-	printf("  Example: check_ice -H stream.icecast.org -p 8000 -m /foobar\n");
-	return;
+	if (strcmp(str, g_name) == 0) {
+		return NOERROR;
+	}
+	else {
+		if (g_mode & ICYWARN)
+			return WARNING;
+		else
+			return ERROR;
+	}
 }
