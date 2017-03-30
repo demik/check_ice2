@@ -44,8 +44,6 @@ int	main(int argc, char *argv[])
 	int	r;	/* return code */
 	int	s;	/* socket file descriptor */
 
-	int	mode;	/* ioctl return */
-
 	char	buff[BUFF_SIZE];
 	ssize_t	len;
 

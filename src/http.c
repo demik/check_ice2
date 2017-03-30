@@ -144,7 +144,7 @@ void	http_request(int socket)
 	char	*request;
 	ssize_t	sent;
 
-	len = asprintf(&request, "GET %s HTTP/1.0 Accept: */*\nUser-Agent: check_ice2 %s\n\n", g_mount, VERSION);
+	len = asprintf(&request, "GET /%s HTTP/1.0 Accept: */*\nUser-Agent: check_ice2 %s\n\n", g_mount, VERSION);
 
 	/* memory allocation error */
 	if (len == -1) {
