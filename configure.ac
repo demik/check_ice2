@@ -15,7 +15,7 @@ dnl You should have received a copy of the GNU Lesser General Public
 dnl License along with this library; if not, write to the Free Software
 dnl Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-AC_INIT([check_ice2], [1.0.0])
+AC_INIT([check_ice2], [1.0.2])
 AC_CONFIG_SRCDIR([src/main.c])
 AM_INIT_AUTOMAKE
 
