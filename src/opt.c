@@ -52,7 +52,7 @@ char		*g_host, *g_port, *g_mount, *g_name;
 void	usage(void);
 void	version(void);
 
-#define	OPTION_STRING	"H:m:n:p:vVw"
+#define	OPTION_STRING	"hH:m:n:p:vVw"
 
 /* check arg, set variables as necessary, and return */
 int	checkopt(int *argc, char ***argv)
