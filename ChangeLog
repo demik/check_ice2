@@ -1,3 +1,6 @@
+### 1.0.4
+- fixed error printing due to changes in 1.0.2
+
 ### 1.0.3
 - removed openssl header
 
