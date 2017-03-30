@@ -11,6 +11,7 @@
  * 
  */
 
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -43,6 +44,8 @@ int	main(int argc, char *argv[])
 	int	r;	/* return code */
 	int	s;	/* socket file descriptor */
 
+	int	mode;	/* ioctl return */
+
 	char	buff[BUFF_SIZE];
 	ssize_t	len;
 
@@ -61,7 +64,7 @@ int	main(int argc, char *argv[])
 		exit(UNKNOWN);
 	http_request(s);
 
-	len = read(s, buff, BUFF_SIZE - 1);
+	len = recv(s, buff, BUFF_SIZE - 1, MSG_WAITALL);
 	close(s);
 
 	if (len < 0) {
@@ -119,7 +122,7 @@ int	main(int argc, char *argv[])
 	if (r > 0)
 		printf("Stream is up on %s, but icy-name doesn't match: %s.\n", g_mount, icy_name);
 	else
-		printf("Stream is up on %s (name: %s, type: %s).\n", g_mount, icy_name, content_type);
+		printf("Stream is up on %s (name: \"%s\", type: %s).\n", g_mount, icy_name, content_type);
 	exit(r);
 }
 
