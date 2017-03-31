@@ -4376,6 +4376,18 @@ fi
 done
 
 
+ac_fn_c_check_type "$LINENO" "ssize_t" "ac_cv_type_ssize_t" "$ac_includes_default"
+if test "x$ac_cv_type_ssize_t" = xyes; then :
+
+else
+
+cat >>confdefs.h <<_ACEOF
+#define ssize_t int
+_ACEOF
+
+fi
+
+
 ac_fn_c_check_type "$LINENO" "u_char" "ac_cv_type_u_char" "$ac_includes_default"
 if test "x$ac_cv_type_u_char" = xyes; then :
 
@@ -4549,6 +4561,54 @@ fi
 
 done
 
+for ac_header in netdb.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "netdb.h" "ac_cv_header_netdb_h" "$ac_includes_default"
+if test "x$ac_cv_header_netdb_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_NETDB_H 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in netinet/in.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "netinet/in.h" "ac_cv_header_netinet_in_h" "$ac_includes_default"
+if test "x$ac_cv_header_netinet_in_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_NETINET_IN_H 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in sys/ioctl.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sys/ioctl.h" "ac_cv_header_sys_ioctl_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_ioctl_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SYS_IOCTL_H 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in sys/socket.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sys/socket.h" "ac_cv_header_sys_socket_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_socket_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SYS_SOCKET_H 1
+_ACEOF
+
+fi
+
+done
+
 
 
 for ac_header in stdlib.h
@@ -4619,12 +4679,34 @@ fi
 
 
 
+for ac_func in memset
+do :
+  ac_fn_c_check_func "$LINENO" "memset" "ac_cv_func_memset"
+if test "x$ac_cv_func_memset" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MEMSET 1
+_ACEOF
+
+fi
+done
+
 for ac_func in socket
 do :
   ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
 if test "x$ac_cv_func_socket" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_SOCKET 1
+_ACEOF
+
+fi
+done
+
+for ac_func in strerror
+do :
+  ac_fn_c_check_func "$LINENO" "strerror" "ac_cv_func_strerror"
+if test "x$ac_cv_func_strerror" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_STRERROR 1
 _ACEOF
 
 fi
