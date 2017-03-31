@@ -43,6 +43,8 @@ dnl
 dnl types check
 dnl
 
+AC_TYPE_SSIZE_T
+
 AC_CHECK_TYPE(u_char, unsigned char)
 
 dnl
@@ -53,6 +55,10 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 
 AC_CHECK_HEADERS([arpa/inet.h])
+AC_CHECK_HEADERS([netdb.h])
+AC_CHECK_HEADERS([netinet/in.h])
+AC_CHECK_HEADERS([sys/ioctl.h])
+AC_CHECK_HEADERS([sys/socket.h])
 
 dnl
 dnl fonctions check
@@ -60,7 +66,9 @@ dnl
 
 AC_FUNC_MALLOC
 
+AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([socket])
+AC_CHECK_FUNCS([strerror])
 
 dnl
 dnl paths
