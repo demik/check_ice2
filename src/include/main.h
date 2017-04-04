@@ -62,7 +62,7 @@ extern char     	*g_port;
 /* others defines */
 #define BUFF_SIZE       4096
 #ifndef VERSION
-#define VERSION         "1.0.3"
+#define VERSION         "1.0.5"
 #endif
 
 #endif

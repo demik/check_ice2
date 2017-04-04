@@ -143,22 +143,22 @@ static inline int	check_code(char *line)
 		case 206:
 			return NOERROR;
 		case 400:
-			printf("Stream at: \"http://%s:%s%s\" is full.\n", g_host, g_port, g_mount);
+			printf("Stream at: \"http://%s:%s/%s\" is full.\n", g_host, g_port, g_mount);
 			return ERROR;
 		case 401:
 		case 403:
 		case 404:
 		case 416:
-			printf("Stream at: \"http://%s:%s%s\" was not found.\n", g_host, g_port, g_mount);
+			printf("Stream at: \"http://%s:%s/%s\" was not found.\n", g_host, g_port, g_mount);
 			return ERROR;
 		case 500:
-			printf("Stream at: \"http://%s:%s%s\" encountered a server error.\n", g_host, g_port, g_mount);
+			printf("Stream at: \"http://%s:%s/%s\" encountered a server error.\n", g_host, g_port, g_mount);
 			return ERROR;
 		case 503:
-			printf("Stream at: \"http://%s:%s%s\" was not avaible.\n", g_host, g_port, g_mount);
+			printf("Stream at: \"http://%s:%s/%s\" was not avaible.\n", g_host, g_port, g_mount);
 			return ERROR;
 		default:	
-			printf("Unknown state for stream at: \"http://%s:%s%s\"\n", g_host, g_port, g_mount);
+			printf("Unknown state for stream at: \"http://%s:%s/%s\"\n", g_host, g_port, g_mount);
 			return UNKNOWN;
 	}
 }
