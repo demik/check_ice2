@@ -1,0 +1,21 @@
+language: c
+
+# Use the faster container-based infrastructure.
+sudo: false
+
+matrix:
+   include:
+      - compiler: gcc
+        os: linux
+      - compiler: clang
+        os: linux
+      - compiler: clang
+        os: osx
+	osx_image: xcode8
+
+# compile script
+before_script: ./autogen.sh
+script: 
+  - ./configure --enable-debug
+  - make
+
