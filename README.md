@@ -7,6 +7,9 @@ It is a Nagios plugin to check if a ICE or Shoucast stream status. It started as
 
 More features in the future.
 
+### Status
+[![Build Status](https://travis-ci.org/demik/check_ice2.svg?branch=master)](https://travis-ci.org/demik/check_ice2)
+
 ### Usage
 Basic Usage:
 ~~~
