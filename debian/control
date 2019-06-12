@@ -1,0 +1,16 @@
+Source: check-ice2
+Section: sound
+Priority: optional
+Maintainer: Michel Depeige <demik475@gmail.com>
+Build-Depends: debhelper (>= 9), autotools-dev
+Standards-Version: 3.9.8
+Homepage: https://github.com/demik/check_ice2
+Vcs-Git: https://github.com/demik/check_ice2.git
+
+Package: check-ice2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Nagios plugin to check if a ICE or Shoucast stream status
+ It is a Nagios plugin to check if a ICE or Shoucast stream status. It started as a fork of pozar/check_ice by Tim Pozar but ended with a full rewrite. designed as a drop-in replacement for check_ice, with some additionnal features :
+ - IPv6 support
+ - ICY name checks
